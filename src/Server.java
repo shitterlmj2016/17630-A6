@@ -25,37 +25,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Server {
 
 
     public static void main(String[] args) throws IOException {
-
-        int buffer = 3;//Current Buffer, Maximum started but unfinished jobs
-        int totalJobs = 0;
-        int finishedJobs = 0;
-
-        //different job types
-        int[]typeCount={0,0,0,0};
-        int A=0;
-        int B=0;
-        int C=0;
-        int D=0;
-
-
-        //different tool occupied statues
-        boolean toolOne=false;
-        boolean toolTwo=false;
-        boolean toolThree=false;
-
-
-        Queue<Integer> productQueue = new LinkedList<Integer>();//Product Queue
-
-
-
-
+        Factory f = new Factory();
+        int count = 0;
         // We create a listener socket and wait for the client.
         ServerSocket listener = new ServerSocket(9090);
 
@@ -69,7 +45,7 @@ public class Server {
             while (true) {
 
                 try {
-                    // Here we read the job. You will get one of four strings from the client job 
+                    // Here we read the job. You will get one of four strings from the client job
                     // simulator: ProductA, ProductB, ProductC, ProductD for each of the possible products.
                     // Once received, I print out the strings.
 
@@ -79,16 +55,33 @@ public class Server {
                     char[] tempArray = msg.toCharArray();
                     char jobName = tempArray[7];
                     int jobType = (int) jobName - 64;//Convert A-D to 1-4
-                    productQueue.offer(jobType);
-                    totalJobs++;
-                    System.out.println("Received Job: " + jobType);
-                    while(buffer>0&&productQueue.size()>0)
-                    {
-                        //create a new thread here
+                    count++;
+                    System.out.print("Received Job: " + jobName);
+                    System.out.println(";  Total jobs received: "+count);
 
+                    if(jobType == 1)
+                    {
+                        productA job=new productA(f);
+                        job.start();
                     }
 
+                    if(jobType == 2)
+                    {
+                        productB job=new productB(f);
+                        job.start();
+                    }
 
+                    if(jobType == 3)
+                    {
+                        productC job=new productC(f);
+                        job.start();
+                    }
+
+                    if(jobType == 4)
+                    {
+                        productD job=new productD(f);
+                        job.start();
+                    }
 
 
                 } catch (Exception e) {
@@ -105,4 +98,5 @@ public class Server {
 
         } // try
     } // main
+
 } // class
