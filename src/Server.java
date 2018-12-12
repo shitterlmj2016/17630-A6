@@ -32,6 +32,8 @@ public class Server {
     public static void main(String[] args) throws IOException {
         Factory f = new Factory();
         int count = 0;
+        long startTime = System.currentTimeMillis();
+
         // We create a listener socket and wait for the client.
         ServerSocket listener = new ServerSocket(9090);
 
@@ -56,8 +58,9 @@ public class Server {
                     char jobName = tempArray[7];
                     int jobType = (int) jobName - 64;//Convert A-D to 1-4
                     count++;
-                    System.out.print("Received Job: " + jobName);
-                    System.out.println(";  Total jobs received: "+count);
+                    System.out.println("[New] A new job " + jobName+" is Received!");
+                    System.out.println("[Statistic]: Total jobs received: "+count+"; waiting:"+(count-f.finished)+"; finished:"+f.finished+";");
+                    System.out.println("[Statistic]: Average arrive rate: "+ (System.currentTimeMillis()-startTime)/(double)count/1000+" seconds/job");
 
                     if(jobType == 1)
                     {

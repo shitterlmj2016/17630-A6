@@ -46,7 +46,7 @@ public class JobSim
         // Socket to the server... assumed to be on the local host
 
         Socket s = new Socket("localhost", 9090);
-
+        long startTime = System.currentTimeMillis();
         // Main submission loop
 
         while(true)
