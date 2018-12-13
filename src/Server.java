@@ -1,24 +1,8 @@
-/******************************************************************************************************************
- * File: Server
- * Course: 17630
- * Project: Assignment A6
- * Copyright: Copyright (c) 2018 Carnegie Mellon University
- * Versions:
- *   1.0 November 2018 - Initial write of assignment 6 (ajl).
- *
- * Description: This class illustrates how to use sockets to receive job request from the client job submission
- * simulator (JobSim.java). You can use the class to create your application. You may not deviate from the
- * communication protocol used here.
- *
- * Parameters: None
- *
- * Internal Methods:
- *   none
- *
- * External Dependencies:
- *   none
- ******************************************************************************************************************/
-
+//17630-A6 Concurrency
+//Andrew ID: xinchenh
+//Name: Xincheng Huang
+//Server class
+//This class servers as the server and test harness
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +24,7 @@ public class Server {
 class serverThread extends Thread {
 
     public void run() {
-
+        //Declare shared factory class and GUI panel class
         Factory f = new Factory();
         GUIPanel g=new GUIPanel();
 
@@ -70,19 +54,20 @@ class serverThread extends Thread {
 
                     BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     String msg = input.readLine();
-
+                    //Convert from string to different job type
                     char[] tempArray = msg.toCharArray();
                     char jobName = tempArray[7];
                     int jobType = (int) jobName - 64;//Convert A-D to 1-4
                     f.received++;
+                    //calculated different types of jobs
+                    //updated on the GUI
                     g.setReceived(f.received);
                     g.setQueued(f.received-f.finished);
                     g.setArrivalRate((double)(System.currentTimeMillis()-startTime)/f.received/1000);
 
-//                    System.out.println("[New] A new job " + jobName+" is Received!");
-//                    System.out.println("[Statistic]: Total jobs received: "+count+"; waiting:"+(count-f.finished)+"; finished:"+f.finished+";");
-//                    System.out.println("[Statistic]: Average arrive rate: "+ (System.currentTimeMillis()-startTime)/(double)count/1000+" seconds/job");
 
+
+                    //Create different threads based on different types of jobs
                     if(jobType == 1)
                     {
                         productA job=new productA(f,g,f.received);

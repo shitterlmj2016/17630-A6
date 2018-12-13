@@ -1,3 +1,10 @@
+//17630-A6 Concurrency
+//Andrew ID: xinchenh
+//Name: Xincheng Huang
+//Factory class
+//This class provides different semaphores (tools)
+//It also servers as the recorder of each thread
+
 import java.util.concurrent.Semaphore;
 
 public class Factory {

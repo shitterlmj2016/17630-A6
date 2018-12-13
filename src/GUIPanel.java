@@ -1,9 +1,17 @@
+//17630-A6 Concurrency
+//Andrew ID: xinchenh
+//Name: Xincheng Huang
+//GUI class
+//This class servers as the GUI
+
 import javax.swing.*;
 import java.awt.*;
 
 public class GUIPanel {
     //Frame for GUI
     private JFrame frame;
+
+    //Different labels represent different values of the system
     private JLabel tool1;
     private JLabel tool2;
     private JLabel tool3;
@@ -20,6 +28,7 @@ public class GUIPanel {
     private JLabel arrivalRate;
     private JLabel speed;
 
+    //Constructor
     public GUIPanel() {
         frame = new JFrame("Panel");
         frame.setLayout(new GridLayout(12, 1));
@@ -92,28 +101,9 @@ public class GUIPanel {
         frame.setVisible(true);
     }
 
-    //Test main
-    public static void main(String args[]) {
-        GUIPanel gp = new GUIPanel();
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        gp.setProductA(2);
-        gp.setProductB(2);
-        gp.setProductC(2);
-        gp.setProductD(2);
-        gp.setTool1("A");
-        gp.setTool2("B");
-        gp.setTool3("C");
-        gp.setReceived(12);
-        gp.setArrivalRate(1.1);
-        gp.setSpeed(12.3);
-        gp.setFinished(3);
-        gp.setQueued(4);
-    }
+    //Test functions
 
+    //Setters
     public void setTool1(String job) {
         tool1.setText("Tool 1: " + job);
     }
