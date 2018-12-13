@@ -30,12 +30,29 @@ public class Server {
 
 
     public static void main(String[] args) throws IOException {
+
+        serverThread S = new serverThread();
+        S.run();
+    }
+
+} // class
+
+class serverThread extends Thread {
+
+    public void run() {
+
         Factory f = new Factory();
-        int count = 0;
+        GUIPanel g=new GUIPanel();
+
         long startTime = System.currentTimeMillis();
 
         // We create a listener socket and wait for the client.
-        ServerSocket listener = new ServerSocket(9090);
+        ServerSocket listener = null;
+        try {
+            listener = new ServerSocket(9090);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("Waiting for client...");
 
@@ -46,7 +63,7 @@ public class Server {
 
             while (true) {
 
-                try {
+
                     // Here we read the job. You will get one of four strings from the client job
                     // simulator: ProductA, ProductB, ProductC, ProductD for each of the possible products.
                     // Once received, I print out the strings.
@@ -57,49 +74,49 @@ public class Server {
                     char[] tempArray = msg.toCharArray();
                     char jobName = tempArray[7];
                     int jobType = (int) jobName - 64;//Convert A-D to 1-4
-                    count++;
-                    System.out.println("[New] A new job " + jobName+" is Received!");
-                    System.out.println("[Statistic]: Total jobs received: "+count+"; waiting:"+(count-f.finished)+"; finished:"+f.finished+";");
-                    System.out.println("[Statistic]: Average arrive rate: "+ (System.currentTimeMillis()-startTime)/(double)count/1000+" seconds/job");
+                    f.received++;
+                    g.setReceived(f.received);
+                    g.setQueued(f.received-f.finished);
+                    g.setArrivalRate((double)(System.currentTimeMillis()-startTime)/f.received/1000);
+
+//                    System.out.println("[New] A new job " + jobName+" is Received!");
+//                    System.out.println("[Statistic]: Total jobs received: "+count+"; waiting:"+(count-f.finished)+"; finished:"+f.finished+";");
+//                    System.out.println("[Statistic]: Average arrive rate: "+ (System.currentTimeMillis()-startTime)/(double)count/1000+" seconds/job");
 
                     if(jobType == 1)
                     {
-                        productA job=new productA(f);
+                        productA job=new productA(f,g,f.received);
                         job.start();
                     }
 
                     if(jobType == 2)
                     {
-                        productB job=new productB(f);
+                        productB job=new productB(f,g,f.received);
                         job.start();
                     }
 
                     if(jobType == 3)
                     {
-                        productC job=new productC(f);
+                        productC job=new productC(f,g,f.received);
                         job.start();
                     }
 
                     if(jobType == 4)
                     {
-                        productD job=new productD(f);
+                        productD job=new productD(f,g,f.received);
                         job.start();
                     }
 
 
-                } catch (Exception e) {
-
-                    System.out.println("Error reading socket:: " + e);
-
                 }
 
-            } // while
+
 
         } catch (Exception e) {
 
             System.out.println("Error connecting to client:: " + e);
 
         } // try
-    } // main
+    }
 
-} // class
+}

@@ -32,7 +32,7 @@ public class JobSim
     public static void main(String[] args) throws IOException
     {
 
-        int     i;                      // counter
+        int     i=1;                      // counter
         int     rannum;                 // random number
         int     randomitem = 0;         // Some random item for males
         int     orderdelay = 0;         // Inter-order delay time
@@ -82,7 +82,7 @@ public class JobSim
             }
 
 
-            System.out.println("Product String:: " + product);
+            System.out.println("Product String:: " +String.valueOf(i++) +" :"+product);
 
             // Here we write the product string to the sever socket
 

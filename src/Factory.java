@@ -5,7 +5,8 @@ public class Factory {
     Semaphore tool2;
     Semaphore tool3;
 
-    int started;//Job that has been started
+    int received;//Job that has been received
+
     int finished;//Job that has been finished
     //started - finished = queued
 
@@ -15,16 +16,6 @@ public class Factory {
     int productC;
     int productD;
 
-    //Record who is using the tool
-    // 0 - nobody (free)
-    // 1 - A productA
-    // 2 - A productB
-    // 3 - A productC
-    // 4 - A productD
-
-    int useTool1;
-    int useTool2;
-    int useTool3;
 
     //Still need a timer to calculate the throughput
     long startTime = System.currentTimeMillis();
@@ -34,25 +25,27 @@ public class Factory {
         this.tool1 = new Semaphore(1);
         this.tool2 = new Semaphore(1);
         this.tool3 = new Semaphore(1);
-        this.started = 0;
+
         this.finished = 0;
         this.productA = 0;
         this.productB = 0;
         this.productC = 0;
         this.productD = 0;
-        this.useTool1 = 0;
-        this.useTool2 = 0;
-        this.useTool3 = 0;
+        this.received = 0;
+
     }
 }
 
 class productA extends Thread {
 
     Factory factory;
+    GUIPanel p;
     int id;
 
-    productA(Factory f) {
+    productA(Factory f, GUIPanel p, int id) {
         factory = f;
+        this.p = p;
+        this.id = id;
     }
 
     public void run() {
@@ -65,9 +58,8 @@ class productA extends Thread {
         }
 
         //Critical section
-        id = factory.started++;
-        System.out.println("[Start] Product " + id + "-A Started!");
-        System.out.println("[Tool 1] Product " + id + "-A is using Tool1...");
+
+        p.setTool1(String.valueOf(id) + "-A");
 
         try {
             Thread.sleep(10000);//10s
@@ -78,7 +70,7 @@ class productA extends Thread {
 
         //Critical Section Ends
         //Release Semaphore
-
+        p.setTool1("Free");
         factory.tool1.release();
 
         try {
@@ -87,28 +79,30 @@ class productA extends Thread {
             e.printStackTrace();
         }
 
+        p.setTool2(String.valueOf(id) + "-A");
 
-        System.out.println("[Tool 1] Product " + id + "-A is using Tool2...");
 
         try {
             Thread.sleep(8000);//8
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        p.setTool2("Free");
         //Set result and print
 
         factory.finished++;
         factory.productA++;
 
-        System.out.println("[Completed] Product " + id + "-A is completed!");
-        System.out.println("[Statistic] Total finished products: " + factory.finished + "; A: " + factory.productA + "; B: " + factory.productB + "; C: " + factory.productC + "; D: " + factory.productD);
 
-        long totalTime=System.currentTimeMillis()-factory.startTime;
-        double averageTime=(double)totalTime/factory.finished/1000;
-        System.out.println("[Speed] Average speed: "+ averageTime + " seconds/job");
+        p.setFinished(factory.finished);
+        p.setProductA(factory.productA);
+        p.setQueued(factory.received - factory.finished);
 
+        long totalTime = System.currentTimeMillis() - factory.startTime;
+        double averageTime = (double) totalTime / factory.finished / 1000;
+        p.setSpeed(averageTime);
         factory.tool2.release();
+
     }
 
 }
@@ -116,10 +110,13 @@ class productA extends Thread {
 class productB extends Thread {
 
     Factory factory;
+    GUIPanel g;
     int id;
 
-    productB(Factory f) {
+    productB(Factory f, GUIPanel g, int id) {
         factory = f;
+        this.g = g;
+        this.id = id;
     }
 
     public void run() {
@@ -132,17 +129,15 @@ class productB extends Thread {
         }
 
         //Critical section
-        id = factory.started++;
-        System.out.println("[Start] Product " + id + "-B Started!");
-        System.out.println("[Tool 2] Product " + id + "-B is using Tool2...");
 
+        g.setTool2(String.valueOf(id) + "-B");
         try {
             Thread.sleep(12000);//12s
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-
+        g.setTool2("Free");
         //Critical Section Ends
         //Release Semaphore
 
@@ -153,24 +148,26 @@ class productB extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        System.out.println("[Tool 3] Product " + id + "-B is using Tool3...");
+        g.setTool3(String.valueOf(id) + "-B");
         try {
             Thread.sleep(6000);//6
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        g.setTool3("Free");
 
         //Set result and print
 
         factory.finished++;
         factory.productB++;
-        System.out.println("[Completed] Product " + id + "-B is completed!");
-        System.out.println("[Statistic] Total finished products: " + factory.finished + "; A: " + factory.productA + "; B: " + factory.productB + "; C: " + factory.productC + "; D: " + factory.productD);
-        long totalTime=System.currentTimeMillis()-factory.startTime;
-        double averageTime=(double)totalTime/factory.finished/1000;
-        System.out.println("[Speed] Average speed: "+ averageTime + " seconds/job");
+
+        g.setFinished(factory.finished);
+        g.setProductB(factory.productB);
+        g.setQueued(factory.received - factory.finished);
+
+        long totalTime = System.currentTimeMillis() - factory.startTime;
+        double averageTime = (double) totalTime / factory.finished / 1000;
+        g.setSpeed(averageTime);
         factory.tool3.release();
     }
 
@@ -179,10 +176,13 @@ class productB extends Thread {
 class productC extends Thread {
 
     Factory factory;
+    GUIPanel g;
     int id;
 
-    productC(Factory f) {
+    productC(Factory f, GUIPanel g, int id) {
         factory = f;
+        this.g = g;
+        this.id = id;
     }
 
     public void run() {
@@ -195,16 +195,14 @@ class productC extends Thread {
         }
 
         //Critical section
-        id = factory.started++;
-        System.out.println("[Start] Product " + id + "-C Started!");
-        System.out.println("[Tool 1] Product " + id + "-C is using Tool1...");
+        g.setTool1(String.valueOf(id) + "-C");
 
         try {
             Thread.sleep(11000);//12s
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        g.setTool1("Free");
 
         //Critical Section Ends
         //Release Semaphore
@@ -216,24 +214,25 @@ class productC extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("[Tool 3] Product " + id + "-C is using Tool3...");
-
+        g.setTool3(String.valueOf(id) + "-C");
         try {
             Thread.sleep(9000);//9
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        g.setTool3("Free");
 
 
         //Set result and print
 
         factory.finished++;
         factory.productC++;
-        System.out.println("[Completed] Product " + id + "-C is completed!");
-        System.out.println("[Statistic] Total finished products: " + factory.finished + "; A: " + factory.productA + "; B: " + factory.productB + "; C: " + factory.productC + "; D: " + factory.productD);
-        long totalTime=System.currentTimeMillis()-factory.startTime;
-        double averageTime=(double)totalTime/factory.finished/1000;
-        System.out.println("[Speed] Average speed: "+ averageTime + " seconds/job");
+        g.setFinished(factory.finished);
+        g.setProductC(factory.productC);
+        g.setQueued(factory.received - factory.finished);
+        long totalTime = System.currentTimeMillis() - factory.startTime;
+        double averageTime = (double) totalTime / factory.finished / 1000;
+        g.setSpeed(averageTime);
         factory.tool3.release();
     }
 
@@ -244,9 +243,12 @@ class productD extends Thread {
 
     Factory factory;
     int id;
+    GUIPanel g;
 
-    productD(Factory f) {
+    productD(Factory f, GUIPanel g, int id) {
         factory = f;
+        this.g = g;
+        this.id = id;
     }
 
     public void run() {
@@ -259,9 +261,8 @@ class productD extends Thread {
         }
 
         //Critical section
-        id = factory.started++;
-        System.out.println("[Start] Product " + id + "-D Started!");
-        System.out.println("[Tool 1] Product " + id + "-D is using Tool1...");
+
+        g.setTool1(String.valueOf(id) + "-D");
 
         try {
             Thread.sleep(7000);//7s
@@ -272,7 +273,7 @@ class productD extends Thread {
 
         //Critical Section Ends
         //Release Semaphore
-
+        g.setTool1("Free");
         factory.tool1.release();
 
 
@@ -283,8 +284,7 @@ class productD extends Thread {
             e.printStackTrace();
         }
 
-        System.out.println("[Tool 2] Product " + id + "-D is using Tool2...");
-
+        g.setTool2((String.valueOf(id) + "-D"));
         try {
             Thread.sleep(6000);//6s
         } catch (InterruptedException e) {
@@ -294,7 +294,7 @@ class productD extends Thread {
 
         //Critical Section Ends
         //Release Semaphore
-
+        g.setTool2("Free");
         factory.tool2.release();
 
 
@@ -304,24 +304,27 @@ class productD extends Thread {
             e.printStackTrace();
         }
 
-        System.out.println("[Tool 3] Product " + id + "-D is using Tool3...");
-
+        g.setTool3(String.valueOf(id) + "-D");
         try {
             Thread.sleep(5000);//5
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-
+        g.setTool3("Free");
         //Set result and print
 
         factory.finished++;
         factory.productD++;
-        System.out.println("[Completed] Product " + id + "-D is completed!");
-        System.out.println("[Statistic] Total finished products: " + factory.finished + "; A: " + factory.productA + "; B: " + factory.productB + "; C: " + factory.productC + "; D: " + factory.productD);
-        long totalTime=System.currentTimeMillis()-factory.startTime;
-        double averageTime=(double)totalTime/factory.finished/1000;
-        System.out.println("[Speed] Average speed: "+ averageTime + " seconds/job");
+
+
+        g.setFinished(factory.finished);
+        g.setProductD(factory.productD);
+        g.setQueued(factory.received-factory.finished);
+
+        long totalTime = System.currentTimeMillis() - factory.startTime;
+        double averageTime = (double) totalTime / factory.finished / 1000;
+        g.setSpeed(averageTime);
         factory.tool3.release();
     }
 
